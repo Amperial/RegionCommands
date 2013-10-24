@@ -1,0 +1,6 @@
+name: ${project.name}
+main: ${main.class}
+version: ${project.version}
+author: BillyGalbreath
+description: Add a WorldGuard flag to give a permission node when first entering the region.
+softdepend: [WorldGuard]

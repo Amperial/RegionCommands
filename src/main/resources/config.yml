@@ -1,0 +1,15 @@
+# Enable debug info in console
+debug-mode: false
+
+# Enable colors in console output
+color-logs: true
+
+# Command to set a perm node to a user
+#(PermmissionsBukkit v2.x Example)
+give-perm-command: perms player setperm {user} {node} true
+
+# Should we notify the player?
+notify-player: true
+
+# What should we tell the player?
+notify-message: '&dYour permissions have been updated.'
