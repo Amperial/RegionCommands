@@ -22,6 +22,7 @@ import com.sk89q.worldguard.protection.GlobalRegionManager;
 import com.sk89q.worldguard.protection.flags.DefaultFlag;
 import com.sk89q.worldguard.protection.flags.Flag;
 import com.sk89q.worldguard.protection.flags.StringFlag;
+import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
 public class PlayerListener implements Listener {
 	private RegionPerms plugin;
@@ -51,14 +52,35 @@ public class PlayerListener implements Listener {
 			plugin.debug("Permission command not found in config!");
 			return;
 		}
-		command = command.replaceAll("(?i)\\{user\\}", player.getName());
+		
+		String regionName = "(unknown)";
+		for (ProtectedRegion region : set) {
+			if (GivePermFlag.givePermFlag(region) == null)
+				continue;
+			regionName = region.getId();
+			break;
+		}
+		
+		command = parseVars(command, player, perm, regionName);
 		command = command.replaceAll("(?i)\\{node\\}", perm);
 		
 		plugin.debug("Executing command: &e/" + command);
 		Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
 		
-		if (plugin.getConfig().getBoolean("notify-player", true))
-			player.sendMessage(plugin.colorize(plugin.getConfig().getString("notify-message", "&dYou can now use the warp to this area.")));
+		if (plugin.getConfig().getBoolean("notify-player", true)) {
+			String message = plugin.getConfig().getString("notify-message", "&dYour permissions have been updated.");
+			message = parseVars(message, player, perm, regionName);
+			player.sendMessage(plugin.colorize(message));
+		}
+	}
+	
+	private String parseVars(String string, Player player, String perm, String region) {
+		string = string.replaceAll("(?i)\\{user\\}", player.getName());
+		string = string.replaceAll("(?i)\\{dispname\\}", player.getDisplayName());
+		string = string.replaceAll("(?i)\\{node\\}", perm);
+		string = string.replaceAll("(?i)\\{world\\}", player.getWorld().getName());
+		string = string.replaceAll("(?i)\\{region\\}", region);
+		return string;
 	}
 	
 	private ApplicableRegionSet getApplicableRegions(Location location) {
@@ -74,6 +96,10 @@ public class PlayerListener implements Listener {
 		
 		public static String givePermFlag(ApplicableRegionSet set) {
 			return set.getFlag(flag);
+		}
+		
+		public static String givePermFlag(ProtectedRegion region) {
+			return region.getFlag(flag);
 		}
 		
 		@SuppressWarnings({ "unchecked", "rawtypes" })
