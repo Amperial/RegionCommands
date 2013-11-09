@@ -1,13 +1,14 @@
 package net.pl3x.regionperms;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
 
+import net.pl3x.regionperms.flags.GivePermFlag;
+import net.pl3x.regionperms.flags.RemovePermFlag;
 import net.pl3x.regionperms.listeners.PlayerListener;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Server;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.mcstats.Metrics;
@@ -15,12 +16,10 @@ import org.mcstats.Metrics;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 
 public class RegionPerms extends JavaPlugin {
-	private static Server server;
 	private PluginManager pm = Bukkit.getPluginManager();
 	
 	public void onEnable() {
-		if (!new File(getDataFolder() + File.separator + "config.yml").exists())
-			saveDefaultConfig();
+		saveDefaultConfig();
 		
 		if (!pm.isPluginEnabled("WorldGuard")) {
 			log("&4ERROR! WorldGuard is required for this plugin to function!");
@@ -28,9 +27,10 @@ public class RegionPerms extends JavaPlugin {
 			return;
 		}
 		
-		server = getServer();
+		pm.registerEvents(new PlayerListener(this), this);
 		
-		pm.registerEvents(new PlayerListener(this, (WorldGuardPlugin) pm.getPlugin("WorldGuard")), this);
+		GivePermFlag.injectHax();
+		RemovePermFlag.injectHax();
 		
 		try {
 			Metrics metrics = new Metrics(this);
@@ -63,7 +63,10 @@ public class RegionPerms extends JavaPlugin {
 		return str.replaceAll("(?i)&([a-f0-9k-or])", "\u00a7$1");
 	}
 	
-	public static Server getBukkitServer() {
-		return server;
+	public WorldGuardPlugin getWorldGuard() {
+		Plugin plugin = getServer().getPluginManager().getPlugin("WorldGuard");
+		if (plugin == null || !(plugin instanceof WorldGuardPlugin))
+			return null;
+		return (WorldGuardPlugin) plugin;
 	}
 }

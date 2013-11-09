@@ -8,8 +8,15 @@ color-logs: true
 #(PermmissionsBukkit v2.x Example)
 give-perm-command: perms player setperm {user} {node} true
 
+# Command to remove a perm node from a user
+#(PermmissionsBukkit v2.x Example)
+remove-perm-command: perms player unsetperm {user} {node}
+
 # Should we notify the player?
 notify-player: true
 
-# What should we tell the player?
-notify-message: '&dYour permissions have been updated.'
+# What should we tell the player when a permission was set?
+notify-give-message: '&dYour permissions have been updated.'
+
+# What should we tell the player when a permission was removed?
+notify-remove-message: '&dYour permissions have been updated.'
